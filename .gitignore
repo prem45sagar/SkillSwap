@@ -1,0 +1,12 @@
+node_modules/
+build/
+dist/
+coverage/
+.env*
+!.env.example
+
+# Development & Setup
+scratch/
+backend/uploads/
+*.log
+.DS_Store

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Conference App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>Video Conference</h1>
+            <div class="room-info">
+                <span id="room-id-display"></span>
+                <span id="user-count">0 users</span>
+                <span id="connection-status" class="connection-status">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Connecting...</span>
+                </span>
+            </div>
+        </header>
+
+        <!-- Landing Page -->
+        <div id="landing-page" class="landing-page">
+            <div class="landing-container">
+                <h2>Video Conference</h2>
+                <p>Connect with others through high-quality video calls</p>
+                
+                <div class="action-buttons">
+                    <button id="new-meeting-btn" class="action-btn primary">
+                        <span class="icon">📹</span>
+                        <span class="text">New Meeting</span>
+                    </button>
+                    <button id="join-meeting-btn" class="action-btn secondary">
+                        <span class="icon">🔗</span>
+                        <span class="text">Join Meeting</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Meeting Form -->
+        <div id="create-form" class="join-form" style="display: none;">
+            <div class="form-container">
+                <h2>Create New Meeting</h2>
+                <input type="text" id="create-user-name" placeholder="Enter your name" required>
+                <div class="meeting-info">
+                    <p>A unique meeting ID will be generated for you</p>
+                </div>
+                <div class="form-buttons">
+                    <button id="create-btn" class="primary-btn">Create Meeting</button>
+                    <button id="back-from-create" class="secondary-btn">Back</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Join Meeting Form -->
+        <div id="join-form" class="join-form" style="display: none;">
+            <div class="form-container">
+                <h2>Join Meeting</h2>
+                <input type="text" id="user-name" placeholder="Enter your name" required>
+                <input type="text" id="room-id" placeholder="Enter Meeting ID" required>
+                <div class="form-buttons">
+                    <button id="join-btn" class="primary-btn">Join Meeting</button>
+                    <button id="back-from-join" class="secondary-btn">Back</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Conference Area -->
+        <div id="conference-area" class="conference-area" style="display: none;">
+            <!-- Video Grid -->
+            <div class="video-container">
+                <div class="video-grid" id="video-grid">
+                    <!-- Videos will be added here dynamically -->
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls">
+                <button id="toggle-video" class="control-btn active">
+                    <span class="icon">📹</span>
+                    <span class="text">Video</span>
+                </button>
+                <button id="toggle-audio" class="control-btn active">
+                    <span class="icon">🎤</span>
+                    <span class="text">Audio</span>
+                </button>
+                <button id="toggle-chat" class="control-btn">
+                    <span class="icon">💬</span>
+                    <span class="text">Chat</span>
+                </button>
+                <button id="share-room" class="control-btn">
+                    <span class="icon">🔗</span>
+                    <span class="text">Share</span>
+                </button>
+                <button id="connection-help-btn" class="control-btn">
+                    <span class="icon">❓</span>
+                    <span class="text">Help</span>
+                </button>
+                <button id="leave-room" class="control-btn leave">
+                    <span class="icon">📞</span>
+                    <span class="text">Leave</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat Panel -->
+        <div id="chat-panel" class="chat-panel">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <h3>Chat</h3>
+                    <span id="chat-user-count" class="user-count-badge">0 participants</span>
+                </div>
+                <button id="close-chat" class="close-btn">×</button>
+            </div>
+            <div class="participants-section">
+                <div class="participants-header">
+                    <span class="participants-icon">👥</span>
+                    <span>Participants</span>
+                </div>
+                <div id="participants-list" class="participants-list">
+                    <!-- Participants will appear here -->
+                </div>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <!-- Messages will appear here -->
+            </div>
+            <div class="chat-input-container">
+                <input type="text" id="chat-input" placeholder="Type a message..." maxlength="500">
+                <button id="send-message">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Connection Help Panel -->
+    <div id="connection-help" class="connection-help" style="display: none;">
+        <div class="help-content">
+            <div class="help-header">
+                <h3>Connection Issues?</h3>
+                <button id="close-help" class="close-btn">×</button>
+            </div>
+            <div class="help-body">
+                <p><strong>If you're having trouble connecting across different networks:</strong></p>
+                <ul>
+                    <li>🌐 Make sure both users are using the <strong>ngrok URL</strong> (not localhost)</li>
+                    <li>🔥 Check if firewall is blocking WebRTC connections</li>
+                    <li>📶 Try switching to a different network or mobile hotspot</li>
+                    <li>🌍 Some corporate networks block peer-to-peer connections</li>
+                    <li>⚡ Consider using Chrome or Edge for better WebRTC support</li>
+                </ul>
+                <div class="ngrok-info">
+                    <p><strong>External Access URL:</strong></p>
+                    <code id="ngrok-url">Use ngrok to get external URL</code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
