@@ -1,8 +1,5 @@
 # 🛡️ SkillSwap: The Elite Skill-Sharing Ecosystem
 
-[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
-
 **SkillSwap** is a cutting-edge, MERN-stack platform designed to transform expertise into currency. It connects experts and learners through a verified, secure, and interactive ecosystem where knowledge is swapped, not just taught.
 
 ---
@@ -95,9 +92,5 @@ Contributions are what make the open source community such an amazing place to l
 
 ---
 
-## 📄 License
-Distributed under the MIT License. See `LICENSE` for more information.
-
----
 
 **Developed with ❤️ by [Prem Sagar](https://github.com/prem45sagar)**
