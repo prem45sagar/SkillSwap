@@ -7,6 +7,8 @@
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
     "dev:frontend": "vite frontend --port=3000 --host=0.0.0.0",
     "dev:backend": "NODE_ENV=development node --watch backend/server.js",
+    "start": "node backend/server.js",
+    "start:backend": "node backend/server.js",
     "seed": "node backend/seed.js",
     "db:clear": "node backend/clear.js",
     "build": "vite build frontend",
