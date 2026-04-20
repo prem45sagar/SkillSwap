@@ -332,6 +332,15 @@ app.use("/api/users", userRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/admin", adminRoutes);
 
+// Health Check Endpoint
+app.get("/api/health", (req, res) => {
+  res.status(200).json({ 
+    status: "healthy", 
+    timestamp: new Date(), 
+    uptime: process.uptime() 
+  });
+});
+
 // 404 Handler
 app.use((req, res) => {
   console.log(`404 - Not Found: ${req.method} ${req.url}`);
@@ -363,3 +372,24 @@ mongoose
   .catch((err) => {
     console.error("MongoDB connection error:", err);
   });
+
+// Graceful Shutdown
+process.on("SIGTERM", () => {
+  console.log("SIGTERM received. Shutting down gracefully...");
+  httpServer.close(() => {
+    mongoose.connection.close(false, () => {
+      console.log("Server and MongoDB connection closed.");
+      process.exit(0);
+    });
+  });
+});
+
+process.on("SIGINT", () => {
+  console.log("SIGINT received. Shutting down gracefully...");
+  httpServer.close(() => {
+    mongoose.connection.close(false, () => {
+      console.log("Server and MongoDB connection closed.");
+      process.exit(0);
+    });
+  });
+});
