@@ -4,7 +4,8 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 import { v2 as cloudinary } from "cloudinary";
 import pkg from "multer-storage-cloudinary";
-const { CloudinaryStorage } = pkg;
+// Handle both named export and default export cases for ESM compatibility
+const CloudinaryStorage = pkg.CloudinaryStorage || pkg;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
