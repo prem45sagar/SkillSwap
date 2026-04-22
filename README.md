@@ -1,6 +1,5 @@
 # 🛡️ SkillSwap: The Elite Skill-Sharing Ecosystem
 
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 **SkillSwap** is a cutting-edge, MERN-stack platform designed to transform expertise into currency. It connects experts and learners through a verified, secure, and interactive ecosystem where knowledge is swapped, not just taught.
 
