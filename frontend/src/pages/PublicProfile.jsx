@@ -321,6 +321,15 @@ export default function PublicProfile() {
                    </div>
                    <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{skill.name}</h4>
                    <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 mb-4">{skill.description}</p>
+                   
+                   {skill.criteria && (
+                     <div className="mb-4">
+                       <span className="inline-flex items-center px-3 py-1.5 rounded-xl bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 text-[10px] font-black uppercase tracking-widest border border-indigo-500/10">
+                        Criteria: {skill.criteria}
+                       </span>
+                     </div>
+                   )}
+
                    <div className="flex items-center justify-between mb-4">
                      <div className="flex items-center text-[10px] font-bold text-slate-500 uppercase tracking-widest">
                        <Clock className="w-3.5 h-3.5 mr-1.5 text-indigo-500" />

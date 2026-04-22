@@ -4,7 +4,7 @@ import SwapRequest from "../models/SwapRequest.js";
 import Notification from "../models/Notification.js";
 
 export const createSkill = async (req, res) => {
-  const { name, description, category, languages, duration, durationUnit, startDate, endDate, desiredSkill } = req.body;
+  const { name, description, category, languages, duration, durationUnit, startDate, endDate, desiredSkill, criteria } = req.body;
   const ownerId = req.user._id;
 
   try {
@@ -39,6 +39,7 @@ export const createSkill = async (req, res) => {
       startDate,
       endDate,
       desiredSkill,
+      criteria,
       status: "open"
     });
 
