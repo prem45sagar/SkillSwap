@@ -12,6 +12,7 @@ const ExploreSchema = new Schema(
     startDate: { type: Date },
     endDate: { type: Date },
     desiredSkill: { type: String },
+    criteria: { type: String },
     status: { 
       type: String, 
       enum: ["open", "ongoing", "occupied", "completed"], 

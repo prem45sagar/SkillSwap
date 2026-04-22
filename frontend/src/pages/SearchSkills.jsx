@@ -529,11 +529,22 @@ export default function SearchSkills() {
                    </div>
                 </div>
 
-                {item.desiredSkill && (
+                 {item.desiredSkill && (
                   <div className="flex flex-col gap-2">
                     <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">Wants to Learn</div>
                     <div className="px-3 py-2 rounded-xl bg-amber-500/5 border border-amber-500/10 text-amber-600 dark:text-amber-500 text-xs font-bold italic">
                       "{item.desiredSkill}"
+                    </div>
+                  </div>
+                )}
+
+                {item.criteria && (
+                  <div className="flex flex-col gap-2">
+                    <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">Target Criteria</div>
+                    <div className="flex items-center text-indigo-600 dark:text-indigo-400 text-xs font-black uppercase tracking-widest">
+                       <span className="px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/10">
+                        {item.criteria}
+                       </span>
                     </div>
                   </div>
                 )}

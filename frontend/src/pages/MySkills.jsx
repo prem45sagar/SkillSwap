@@ -170,6 +170,17 @@ export default function MySkills() {
                       </div>
                     </div>
                   )}
+
+                  {skill.criteria && (
+                    <div className="flex flex-col gap-2">
+                      <div className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Target Criteria</div>
+                      <div className="flex items-center text-indigo-600 dark:text-indigo-400 text-xs font-black uppercase tracking-widest">
+                        <span className="px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/10">
+                          {skill.criteria}
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center justify-between mt-5 pt-4 border-t border-slate-200 dark:border-white/5 text-[10px] font-black uppercase tracking-widest text-slate-500">

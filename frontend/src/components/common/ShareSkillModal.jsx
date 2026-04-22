@@ -23,7 +23,8 @@ export default function ShareSkillModal({ isOpen, onClose, onSkillAdded, editDat
     durationUnit: "days",
     startDate: today,
     endDate: "",
-    desiredSkill: ""
+    desiredSkill: "",
+    criteria: ""
   });
 
   useEffect(() => {
@@ -37,7 +38,8 @@ export default function ShareSkillModal({ isOpen, onClose, onSkillAdded, editDat
         durationUnit: editData.durationUnit || "days",
         startDate: isRepost ? today : (editData.startDate ? new Date(editData.startDate).toISOString().split('T')[0] : today),
         endDate: editData.endDate ? new Date(editData.endDate).toISOString().split('T')[0] : "",
-        desiredSkill: editData.desiredSkill || ""
+        desiredSkill: editData.desiredSkill || "",
+        criteria: editData.criteria || ""
       });
     }
   }, [editData, isRepost, today, isOpen]);
@@ -104,7 +106,8 @@ export default function ShareSkillModal({ isOpen, onClose, onSkillAdded, editDat
         duration: 7,
         startDate: today,
         endDate: "",
-        desiredSkill: ""
+        desiredSkill: "",
+        criteria: ""
       });
     }, 300);
   };
@@ -255,6 +258,20 @@ export default function ShareSkillModal({ isOpen, onClose, onSkillAdded, editDat
                         />
                       </div>
                     </div>
+
+                    <div className="space-y-2">
+                       <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1 flex items-center">
+                         <Sparkles className="w-3 h-3 mr-2 text-indigo-500" />
+                         Target Audience / Criteria
+                       </label>
+                       <input
+                         type="text"
+                         value={formData.criteria}
+                         onChange={(e) => setFormData({...formData, criteria: e.target.value})}
+                         placeholder="e.g. 10th, 12th, UG, PG, BTech students"
+                         className="w-full bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-2xl py-4 px-5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-medium"
+                       />
+                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
