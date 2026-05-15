@@ -58,8 +58,9 @@ const DUMMY_SKILLS = [
 
 // Helper to provide consistent dummy ratings
 const getDummyRating = (id) => {
+  if (!id) return "4.8";
   const ratings = ["4.9", "5.0", "4.8", "4.7"];
-  const index = id.charCodeAt(id.length - 1) % ratings.length;
+  const index = String(id).charCodeAt(String(id).length - 1) % ratings.length;
   return ratings[index];
 };
 
@@ -119,7 +120,7 @@ export default function SearchSkills() {
           
           // Identify owners who have an ongoing swap (any skill marked 'ongoing')
           const busyOwners = new Set(
-            data.filter(s => s.status === 'ongoing').map(s => (typeof s.owner === 'object' ? s.owner?._id : s.owner))
+            data.filter(s => s.status === 'ongoing').map(s => (typeof s.owner === 'object' ? (s.owner?._id || s.owner?.id) : s.owner))
           );
 
           const othersSkills = data
@@ -129,7 +130,7 @@ export default function SearchSkills() {
             })
             .map(s => ({
               ...s,
-              isOwnerBusy: busyOwners.has(typeof s.owner === 'object' ? s.owner?._id : s.owner)
+              isOwnerBusy: busyOwners.has(typeof s.owner === 'object' ? (s.owner?._id || s.owner?.id) : s.owner)
             }))
             .sort((a, b) => new Date(b.createdAt || Date.now()) - new Date(a.createdAt || Date.now()));
           
@@ -142,7 +143,7 @@ export default function SearchSkills() {
           const swaps = await swapService.getSwapRequests();
           const pending = swaps.some(req => 
             req.status === 'accepted' && 
-            ((req.sender?._id === user?._id && !req.senderReviewed) || (req.receiver?._id === user?._id && !req.receiverReviewed))
+            (((req.sender?._id || req.sender?.id) === (user?._id || user?.id) && !req.senderReviewed) || ((req.receiver?._id || req.receiver?.id) === (user?._id || user?.id) && !req.receiverReviewed))
           );
           setHasPendingReview(pending);
 
@@ -198,10 +199,10 @@ export default function SearchSkills() {
       <SwapRequestModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        expertId={selectedExpert?.owner?._id}
+        expertId={selectedExpert?.owner?._id || selectedExpert?.owner?.id}
         expertName={selectedExpert?.owner?.name || "Expert"}
         expertSkill={selectedExpert?.name || ""}
-        receiverSkillId={selectedExpert?._id}
+        receiverSkillId={selectedExpert?._id || selectedExpert?.id}
       />
 
       <div className="mb-10 lg:mb-12">
@@ -442,7 +443,7 @@ export default function SearchSkills() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredSkills.map((item, i) => (
             <motion.div
-              key={item._id}
+              key={item._id || item.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
@@ -466,7 +467,7 @@ export default function SearchSkills() {
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
                 <div className="flex items-center space-x-3">
                   <Link 
-                    to={`/profile/${item.owner?._id}`} 
+                    to={`/profile/${item.owner?._id || item.owner?.id}`} 
                     onClick={(e) => e.stopPropagation()}
                     className="relative group/avatar shrink-0"
                   >
@@ -481,15 +482,15 @@ export default function SearchSkills() {
                   </Link>
                   <div className="min-w-0">
                     <Link 
-                      to={`/profile/${item.owner?._id}`}
+                      to={`/profile/${item.owner?._id || item.owner?.id}`}
                       onClick={(e) => e.stopPropagation()}
                       className="text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 font-bold transition-colors block truncate"
                     >
-                      {item.owner?.name || "Expert"}
+                      {item.name || item.description || "Untitled Skill"}
                     </Link>
                     <div className="flex items-center text-amber-400 text-[10px] font-black uppercase tracking-widest mt-0.5">
                       <Star className="w-3 h-3 fill-current mr-1" />
-                      {getDummyRating(item._id)}
+                      {getDummyRating(item._id || item.id)}
                     </div>
                   </div>
                 </div>
@@ -506,7 +507,7 @@ export default function SearchSkills() {
               </div>
 
               <h4 className="text-xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">
-                {item.name}
+                Expert: {item.owner?.name || "Expert"}
               </h4>
               <p className="text-slate-600 dark:text-slate-400 text-sm mb-6 line-clamp-2 font-medium">
                 {item.description}
@@ -606,7 +607,7 @@ export default function SearchSkills() {
           // Re-fetch skills, excluding current user's own skills
           skillService.getSkills().then(data => {
             const othersSkills = data
-              .filter(s => s.owner?._id !== user?._id)
+              .filter(s => (s.owner?._id || s.owner?.id) !== (user?._id || user?.id))
               .sort((a, b) => new Date(b.createdAt || Date.now()) - new Date(a.createdAt || Date.now()));
             setSkills(othersSkills);
           });

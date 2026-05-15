@@ -103,4 +103,4 @@ Contributions are what make the open source community such an amazing place to l
 
 ---
 
-**Developed with ❤️ by [Prem Sagar](https://github.com/prem45sagar)**
+**Developed with ❤️ by [Kanhaiya Kumar](https://github.com/kanhaiya-kumar-kt)**

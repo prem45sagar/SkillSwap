@@ -1,6 +1,99 @@
+class StompSocketAdapter {
+    constructor() {
+        this.callbacks = {};
+        this.id = Math.random().toString(36).substring(2, 15);
+        this.roomId = null;
+        
+        this.stompClient = new window.StompJs.Client({
+            webSocketFactory: () => new window.SockJS('/ws'),
+            reconnectDelay: 5000,
+            heartbeatIncoming: 4000,
+            heartbeatOutgoing: 4000,
+        });
+
+        this.stompClient.onConnect = () => {
+            console.log("Connected to STOMP WebSocket via Adapter");
+        };
+
+        this.stompClient.activate();
+    }
+
+    on(event, callback) {
+        if (!this.callbacks[event]) this.callbacks[event] = [];
+        this.callbacks[event].push(callback);
+    }
+
+    trigger(event, data) {
+        if (this.callbacks[event]) {
+            if (event === 'participants-updated') {
+                this.callbacks[event].forEach(cb => cb(data.users));
+            } else {
+                this.callbacks[event].forEach(cb => cb(data));
+            }
+        }
+    }
+
+    emit(event, ...args) {
+        if (!this.stompClient.connected) {
+            console.warn("STOMP not connected yet. Cannot emit:", event);
+            return;
+        }
+
+        if (event === 'join-room') {
+            const [roomId, userName] = args;
+            this.roomId = roomId;
+            
+            this.stompClient.subscribe(`/topic/video/${roomId}`, (message) => {
+                const data = JSON.parse(message.body);
+                if (data.event && data.event !== 'room-joined' && data.sender !== this.id) {
+                    this.trigger(data.event, data);
+                }
+            });
+
+            this.stompClient.subscribe(`/topic/video/user/${this.id}`, (message) => {
+                const data = JSON.parse(message.body);
+                if (data.event) {
+                    this.trigger(data.event, data);
+                }
+            });
+
+            this.stompClient.publish({
+                destination: '/app/video.join',
+                body: JSON.stringify({ roomId, userName, peerId: this.id })
+            });
+        }
+        else if (['offer', 'answer', 'ice-candidate'].includes(event)) {
+            const data = args[0];
+            this.stompClient.publish({
+                destination: '/app/video.signal',
+                body: JSON.stringify({ 
+                    event, 
+                    target: data.target, 
+                    offer: data.offer, 
+                    answer: data.answer, 
+                    candidate: data.candidate 
+                })
+            });
+        }
+        else if (['toggle-video', 'toggle-audio', 'chat-message', 'leave-room', 'beforeunload'].includes(event)) {
+            const payload = { event: event === 'beforeunload' ? 'leave-room' : event };
+            if (event === 'toggle-video') payload.videoEnabled = args[0];
+            if (event === 'toggle-audio') payload.audioEnabled = args[0];
+            if (event === 'chat-message') {
+                payload.message = args[0];
+                payload.timestamp = new Date().toLocaleTimeString();
+            }
+            this.stompClient.publish({
+                destination: '/app/video.broadcast',
+                body: JSON.stringify(payload)
+            });
+        }
+    }
+}
+
 class VideoConference {
     constructor() {
-        this.socket = io();
+        this.socket = new StompSocketAdapter();
         this.localStream = null;
         this.peers = new Map();
         this.roomId = null;

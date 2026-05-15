@@ -23,7 +23,8 @@ import {
   Plus,
   ArrowLeft,
 } from "lucide-react";
-import { io } from "socket.io-client";
+import { Client } from "@stomp/stompjs";
+import SockJS from "sockjs-client/dist/sockjs";
 import { cn } from "@/src/lib/utils";
 import ConfirmationModal from "@/src/components/common/ConfirmationModal";
 import { useTheme } from "@/src/context/ThemeContext";
@@ -52,47 +53,56 @@ export default function Chat() {
   useEffect(() => {
     fetchContacts();
 
-    // Initialize Socket.io
-    socketRef.current = io(SOCKET_URL);
+    // Initialize STOMP/SockJS
+    const client = new Client({
+      webSocketFactory: () => new SockJS(`${SOCKET_URL}/ws`),
+      reconnectDelay: 5000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
+      debug: (str) => console.log(str),
+    });
 
-    socketRef.current.on("connect", () => {
-      console.log("Connected to websocket");
+    client.onConnect = () => {
+      console.log("Connected to STOMP websocket");
       if (user?._id) {
-        socketRef.current.emit("join_room", user._id);
+        // Subscribe to personal chat topic
+        client.subscribe(`/topic/chat/${user._id}`, (message) => {
+          const data = JSON.parse(message.body);
+          
+          if (data.type === "receive_message") {
+            const newMessage = data;
+            // Check if the message belongs to the active chat
+            if (
+              (newMessage.sender === activeChatId || newMessage.sender._id === activeChatId) ||
+              newMessage.messageType === "system"
+            ) {
+              const mappedMsg = {
+                ...newMessage,
+                id: newMessage._id,
+                text: newMessage.content,
+                own: newMessage.sender === user?._id || newMessage.sender._id === user?._id,
+                time: new Date(newMessage.createdAt).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }),
+                status: "sent",
+              };
+              setChatMessages((prev) => [...prev, mappedMsg]);
+            }
+            fetchContacts();
+          } else if (data.type === "message_deleted") {
+            setChatMessages((prev) => prev.filter((m) => m.id !== data.messageId));
+          }
+        });
       }
-    });
+    };
 
-    socketRef.current.on("receive_message", (newMessage) => {
-      // Check if the message belongs to the active chat
-      if (
-        (newMessage.sender === activeChatId || newMessage.sender._id === activeChatId) ||
-        newMessage.messageType === "system"
-      ) {
-        const mappedMsg = {
-          ...newMessage,
-          id: newMessage._id,
-          text: newMessage.content,
-          own: newMessage.sender === user?._id || newMessage.sender._id === user?._id,
-          time: new Date(newMessage.createdAt).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-          status: "sent",
-        };
-        setChatMessages((prev) => [...prev, mappedMsg]);
-      }
-      
-      // Update contacts list last message
-      fetchContacts();
-    });
-
-    socketRef.current.on("message_deleted", (messageId) => {
-      setChatMessages((prev) => prev.filter((m) => m.id !== messageId));
-    });
+    client.activate();
+    socketRef.current = client;
 
     return () => {
       if (socketRef.current) {
-        socketRef.current.disconnect();
+        socketRef.current.deactivate();
       }
     };
   }, [user, activeChatId]);
@@ -189,7 +199,12 @@ export default function Chat() {
       };
 
       setChatMessages((prev) => [...prev, newMessage]);
-      socketRef.current.emit("send_message", data);
+      if (socketRef.current && socketRef.current.connected) {
+        socketRef.current.publish({
+          destination: "/app/chat.send",
+          body: JSON.stringify(data)
+        });
+      }
     } catch (err) {
       console.error("Failed to send video call message:", err);
     }
@@ -229,8 +244,13 @@ export default function Chat() {
       setChatMessages((prev) => [...prev, newMessage]);
       setMessage("");
 
-      // Emit through socket
-      socketRef.current.emit("send_message", data);
+      // Emit through STOMP socket
+      if (socketRef.current && socketRef.current.connected) {
+        socketRef.current.publish({
+          destination: "/app/chat.send",
+          body: JSON.stringify(data)
+        });
+      }
     } catch (err) {
       console.error("Failed to send message:", err);
     }
@@ -264,7 +284,12 @@ export default function Chat() {
       };
 
       setChatMessages((prev) => [...prev, newMessage]);
-      socketRef.current.emit("send_message", data);
+      if (socketRef.current && socketRef.current.connected) {
+        socketRef.current.publish({
+          destination: "/app/chat.send",
+          body: JSON.stringify(data)
+        });
+      }
     } catch (err) {
       console.error("Failed to upload file:", err);
       alert(err.message || "Failed to upload file. Please try again.");
@@ -279,11 +304,14 @@ export default function Chat() {
       try {
         await messageService.deleteMessage(deleteMessageId);
         
-        // Notify the other user via socket
-        if (socketRef.current && activeChatId) {
-          socketRef.current.emit("delete_message", {
-            messageId: deleteMessageId,
-            receiver: activeChatId
+        // Notify the other user via STOMP socket
+        if (socketRef.current && socketRef.current.connected && activeChatId) {
+          socketRef.current.publish({
+            destination: "/app/chat.delete",
+            body: JSON.stringify({
+              messageId: deleteMessageId,
+              receiver: activeChatId
+            })
           });
         }
 

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { notificationService } from "@/src/services/notificationService";
+import { swapService } from "@/src/services/swapService";
 
 export default function Notifications() {
   const { user } = useAuth();
@@ -65,6 +66,8 @@ export default function Notifications() {
         ...n,
         id: n._id,
         unread: !n.isRead,
+        title: n.title || (n.type.charAt(0).toUpperCase() + n.type.slice(1)),
+        description: n.content,
         icon: iconMap[n.type] || Bell,
         color: colorMap[n.type] || "text-indigo-400",
         bg: bgMap[n.type] || "bg-indigo-500/10",
@@ -93,6 +96,17 @@ export default function Notifications() {
       setNotifications((prev) => prev.filter((n) => n.id !== id));
     } catch (err) {
       console.error("Failed to delete notification:", err);
+    }
+  };
+
+  const handleSwapAction = async (notification, status) => {
+    try {
+      await swapService.updateSwapStatus(notification.relatedId, status);
+      // Mark notification as read and remove action buttons
+      await notificationService.markAllAsRead(); // Or just update local state
+      fetchNotifications();
+    } catch (err) {
+      console.error(`Failed to ${status} swap:`, err);
     }
   };
 
@@ -160,10 +174,27 @@ export default function Notifications() {
                   {notification.description}
                 </p>
 
-                <div className="mt-3 flex items-center">
+                <div className="mt-4 flex items-center gap-3">
+                  {notification.type === 'request' && notification.relatedId && (
+                    <>
+                      <button
+                        onClick={() => handleSwapAction(notification, 'accepted')}
+                        className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        Accept Swap
+                      </button>
+                      <button
+                        onClick={() => handleSwapAction(notification, 'rejected')}
+                        className="px-4 py-2 bg-slate-100 dark:bg-white/5 hover:bg-red-50 dark:hover:bg-red-500/10 text-slate-600 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 text-xs font-bold rounded-xl transition-all border border-slate-200 dark:border-white/10"
+                      >
+                        Decline
+                      </button>
+                    </>
+                  )}
                   <button
                     onClick={() => deleteNotification(notification.id)}
-                    className="flex items-center gap-1.5 text-xs font-medium text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 transition-colors px-2.5 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10"
+                    className="flex items-center gap-1.5 text-xs font-medium text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 transition-colors px-2.5 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 ml-auto"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     Delete

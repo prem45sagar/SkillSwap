@@ -6,9 +6,9 @@
   "scripts": {
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
     "dev:frontend": "vite frontend --port=3000 --host=0.0.0.0",
-    "dev:backend": "NODE_ENV=development node --watch backend/server.js",
-    "start": "node backend/server.js",
-    "start:backend": "node backend/server.js",
+    "dev:backend": "cd backend-spring && mvnw.cmd spring-boot:run",
+    "start": "cd backend-spring && mvnw.cmd spring-boot:run",
+    "start:backend": "cd backend-spring && mvnw.cmd spring-boot:run",
     "seed": "node backend/seed.js",
     "db:clear": "node backend/clear.js",
     "build": "vite build frontend",
@@ -19,6 +19,7 @@
     "@google/genai": "^1.29.0",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
+    "@stomp/stompjs": "^7.3.0",
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",
     "bcryptjs": "^3.0.3",
@@ -50,6 +51,7 @@
     "recharts": "^3.8.1",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
+    "sockjs-client": "^1.6.1",
     "tailwind-merge": "^3.5.0",
     "three": "^0.183.2",
     "vite": "^6.2.0"

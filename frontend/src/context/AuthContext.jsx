@@ -13,7 +13,8 @@ export function AuthProvider({ children }) {
         const data = await authService.getCurrentUser();
         const userData = {
           ...data,
-          id: data._id,
+          id: data.id || data._id,
+          _id: data.id || data._id,
           skills: data.skills || [],
         };
         setUser(userData);
@@ -37,7 +38,8 @@ export function AuthProvider({ children }) {
     const data = await authService.login({ email, password });
     const userData = {
       ...data,
-      id: data._id,
+      id: data.id || data._id,
+      _id: data.id || data._id,
       skills: data.skills || [],
     };
     setUser(userData);
@@ -88,7 +90,8 @@ export function AuthProvider({ children }) {
       const data = await authService.getCurrentUser();
       const userData = {
         ...data,
-        id: data._id,
+        id: data.id || data._id,
+        _id: data.id || data._id,
         skills: data.skills || [],
       };
       setUser(userData);
